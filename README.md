@@ -36,8 +36,3 @@ SQLULEN Size.......: 8
 SQLLEN Size........: 8
 SQLSETPOSIROW Size.: 8
 ```
-
-
-[ODBC Driver 17 for SQL Server]
-Description=Microsoft ODBC Driver 17 for SQL Server
-Driver=/opt/homebrew/Cellar/msodbcsql17/17.9.1.1/lib

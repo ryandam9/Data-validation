@@ -43,8 +43,11 @@ def generate_table_metadata_compare_report(df, src_db_config, tgt_db_config):
     current_time = get_current_time()
 
     # Write the HTML report to a file.
-    html_report = os.path.join(root_dir, 'table_structure_validation',
-                               f'table_metadata_compare_report_{current_time}.html')
+    html_report = os.path.join(
+        root_dir,
+        "table_structure_validation",
+        f"table_metadata_compare_report_{current_time}.html",
+    )
 
     with open(html_report, "w") as report:
         report.write(html_template)
@@ -157,7 +160,10 @@ def generate_data_validation_report(summary_rows, col_differences, counts):
 
     # Write the HTML report to a file.
     html_report = os.path.join(
-        root_dir, 'data_validation_reports', f'data_validation_report_{current_time}.html')
+        root_dir,
+        "data_validation_reports",
+        f"data_validation_report_{current_time}.html",
+    )
 
     with open(html_report, "w") as report:
         report.write(html_template)

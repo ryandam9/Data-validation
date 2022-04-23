@@ -115,7 +115,7 @@ def print_messages(messages, headers):
 
 def get_tables_to_validate() -> list:
     """
-    This function reads the "tables.txt" file in the project root folder and returns 
+    This function reads the "tables.txt" file in the project root folder and returns
     a list of tables to validate.
 
     :return: A list of tables to validate. Each table is a map with keys:
@@ -124,7 +124,7 @@ def get_tables_to_validate() -> list:
     tables = []
 
     try:
-        file_full_path = os.path.join(get_project_root(), 'tables.txt')
+        file_full_path = os.path.join(get_project_root(), "tables.txt")
         print(f"-> Reading {file_full_path}")
 
         with open(file_full_path, "r") as f:
@@ -144,9 +144,7 @@ def get_tables_to_validate() -> list:
 
 
 def get_current_time():
-    return (
-        datetime.now().strftime("%Y_%m_%d %H:%M").replace(" ", "_").replace(":", "_")
-    )
+    return datetime.now().strftime("%Y_%m_%d %H:%M").replace(" ", "_").replace(":", "_")
 
 
 def get_project_root():

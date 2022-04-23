@@ -11,8 +11,7 @@ from databases.sql_server import sqlserver_table_to_df
 from databases.sql_server_queries import sqlserver_queries
 
 
-from settings import (DATA_VALIDATION_REC_COUNT, DEBUG_DATA_VALIDATION,
-                      PARALLEL_THREADS)
+from settings import DATA_VALIDATION_REC_COUNT, DEBUG_DATA_VALIDATION, PARALLEL_THREADS
 from sql_formatter.core import format_sql
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -113,8 +112,7 @@ def data_validation(tables: list, src_config: dict, tgt_config: dict) -> None:
                 args=(
                     schema,
                     table,
-                    primary_keys[table] if table in primary_keys.keys() else [
-                    ],
+                    primary_keys[table] if table in primary_keys.keys() else [],
                     src_config,
                     tgt_config,
                 ),
@@ -178,8 +176,7 @@ def data_validation_single_table(schema, table, primary_key, src_config, tgt_con
     # ----------------------------------------------------------------------------------------------#
     # Generate summary file                                                                         #
     # ----------------------------------------------------------------------------------------------#
-    summary_file = open(
-        f"{log_dir}/{schema}_{table}_data_validation_summary.log", "w")
+    summary_file = open(f"{log_dir}/{schema}_{table}_data_validation_summary.log", "w")
 
     no_pk_cols = len(primary_key)
 
@@ -338,7 +335,9 @@ def data_validation_single_table(schema, table, primary_key, src_config, tgt_con
             combined_df, schema, table, columns, primary_key, summary_file
         )
 
-        excel_file_location = f"{root_dir}/data_validation_reports/{schema}_{table}.xlsx"
+        excel_file_location = (
+            f"{root_dir}/data_validation_reports/{schema}_{table}.xlsx"
+        )
 
         formatted_df.to_excel(
             excel_file_location, sheet_name=f"{schema}_{table}", index=False
@@ -550,7 +549,7 @@ def fetch_primary_key_column_names(src_config, tables):
     :return: A Pandas DataFrame containing the primary key column names.
     """
     db_engine = src_config["db_engine"]
-    primary_keys_query = ''
+    primary_keys_query = ""
 
     if db_engine in ORACLE:
         primary_keys_query = oracle_queries["get_primary_key"]
@@ -572,17 +571,16 @@ def fetch_primary_key_column_names(src_config, tables):
 
         return df
     except SQLAlchemyError as e:
-            error = str(e.__dict__["orig"])
-            print(f"-> Unable to fetch primary key column names: {error}")
-            print(
-                f"-> This is the query used to find primary key columns: \n{query}")
-            sys.exit(1)
+        error = str(e.__dict__["orig"])
+        print(f"-> Unable to fetch primary key column names: {error}")
+        print(f"-> This is the query used to find primary key columns: \n{query}")
+        sys.exit(1)
 
 
 def read_data_from_source_db(src_config, schema, table):
-    """ 
+    """
     Read Data from Source Database. It could be Oracle, SQL Server or Postgress
-    at the moment. 
+    at the moment.
     """
     db_engine = src_config["db_engine"]
 
@@ -617,7 +615,6 @@ def read_data_from_source_db(src_config, schema, table):
             raise e
 
 
-
 def read_data_from_target_db(tgt_config, query):
     """ """
     db_engine = tgt_config["db_engine"]
@@ -634,7 +631,7 @@ def read_data_from_target_db(tgt_config, query):
             return target_df
 
     except SQLAlchemyError as e:
-            raise e
+        raise e
 
 
 def write_log_entry(file, entry, close_file):
@@ -712,8 +709,7 @@ def generate_html_data():
                             ]
                         )
                     except Exception as error:
-                        print(
-                            f"Error in parsing summary file {file_full_path}")
+                        print(f"Error in parsing summary file {file_full_path}")
                         print(f"Error: {error}")
                         print(f"Trailor record: {trailor_record}")
 
@@ -744,11 +740,9 @@ def generate_html_data():
                         pk = pk.strip()
                         col = col.strip()
 
-                        col_differences.append(
-                            [sch, tbl, pk, col, src, tgt, msg])
+                        col_differences.append([sch, tbl, pk, col, src, tgt, msg])
                     except Exception as err:
-                        print(
-                            "Error @ generate_html_data() while processing {line}")
+                        print("Error @ generate_html_data() while processing {line}")
                         print(err)
 
     counts = {}
