@@ -2,6 +2,7 @@ import os
 import platform
 import sys
 
+from databases.sql_server import sqlserver_table_to_df
 from settings import (SRC_DB, SRC_DB_ENGINE, SRC_PORT, TGT_DB, TGT_DB_ENGINE,
                       TGT_PORT, oracle_instant_client_path)
 from src.data_validation import data_validation
@@ -19,13 +20,13 @@ if len(tables_to_validate) == 0:
 # ------------------------------------------------------------------------------#
 # Check the DB Connection properties.                                           #
 # ------------------------------------------------------------------------------#
-src_host = os.environ['SRC_HOST'] if 'SRC_HOST' in os.environ else None
-src_user = os.environ['SRC_USER'] if 'SRC_USER' in os.environ else None
-src_pwd = os.environ['SRC_PWD'] if 'SRC_PWD' in os.environ else None
+src_host = os.environ["SRC_HOST"] if "SRC_HOST" in os.environ else None
+src_user = os.environ["SRC_USER"] if "SRC_USER" in os.environ else None
+src_pwd = os.environ["SRC_PWD"] if "SRC_PWD" in os.environ else None
 
-tgt_host = os.environ['TGT_HOST'] if 'TGT_HOST' in os.environ else None
-tgt_user = os.environ['TGT_USER'] if 'TGT_USER' in os.environ else None
-tgt_pwd = os.environ['TGT_PWD'] if 'TGT_PWD' in os.environ else None
+tgt_host = os.environ["TGT_HOST"] if "TGT_HOST" in os.environ else None
+tgt_user = os.environ["TGT_USER"] if "TGT_USER" in os.environ else None
+tgt_pwd = os.environ["TGT_PWD"] if "TGT_PWD" in os.environ else None
 
 if (
     SRC_DB_ENGINE is None
@@ -55,8 +56,11 @@ if (
     or len(tgt_pwd) == 0
 ):
     print("-> Please set the DB Configuration in settings.py")
-    print("-> Please set the envioronment variables: SRC_HOST, SRC_USER, SRC_PWD, TGT_HOST, TGT_USER, TGT_PWD")
-    sys.exit(1)
+    print(
+        "-> Please set the envioronment variables: SRC_HOST, SRC_USER, SRC_PWD, TGT_HOST, TGT_USER, TGT_PWD"
+    )
+    None
+    # sys.exit(1)
 
 src_config = {
     "db_engine": SRC_DB_ENGINE,
@@ -75,6 +79,18 @@ tgt_config = {
     "user": tgt_user,
     "password": tgt_pwd,
 }
+
+config = {
+    "db_engine": 'SQL SERVER',
+    "host": '',
+    "port": 1433,
+    "service": 'AdventureWorks',
+    "user": '',
+    "password": '',
+}
+
+sqlserver_table_to_df(config, "select @@SERVERNAME", None)
+sys.exit(0)
 
 # ------------------------------------------------------------------------------#
 # Create following directories                                                  #

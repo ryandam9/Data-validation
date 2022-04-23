@@ -12,7 +12,7 @@ from settings import (DATA_VALIDATION_REC_COUNT, DEBUG_DATA_VALIDATION,
 from sql_formatter.core import format_sql
 from sqlalchemy.exc import SQLAlchemyError
 
-from .constants import ORACLE, POSTGRES
+from .constants import ORACLE, POSTGRES, SQLSERVER
 from .html_reports import generate_data_validation_report
 from .utils import get_project_root, print_messages
 
@@ -529,6 +529,8 @@ def generate_db_specific_inline_view(db_engine, tables):
         if db_engine in ORACLE:
             inline_view += f"SELECT '{table['schema']}' AS owner, '{table['table']}' AS table_name FROM DUAL "
         elif db_engine in POSTGRES:
+            inline_view += f"SELECT '{table['schema']}' AS owner, '{table['table']}' AS table_name "
+        elif db_engine in SQLSERVER:
             inline_view += f"SELECT '{table['schema']}' AS owner, '{table['table']}' AS table_name "
 
     return inline_view
