@@ -11,6 +11,12 @@ from tabulate import tabulate
 
 
 def sqlserver_table_to_df(config, query, params):
+    """
+    For this function to work, first download ODBC Driver from this
+    link:
+    https://docs.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-ver15
+
+    """
     host = config["host"]
     port = config["port"]
     service = config["service"]
@@ -21,19 +27,15 @@ def sqlserver_table_to_df(config, query, params):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=sa_exc.SAWarning)
 
-        # engine = sqlalchemy.create_engine(
-            # f"mssql+pyodbc://{user}:{password}@{host}:{port}/{service}?driver={ODBC Driver 17 for SQL Server}")
+        engine = sqlalchemy.create_engine(
+            f"mssql+pyodbc://{user}:{password}@{host}:{port}/{service}?driver=ODBC Driver 17 for SQL Server")
 
-        # Connection string
-        cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=' +
-                              host+';DATABASE='+service+';UID=' + user+';PWD=' + password)
-
-        # if params is None:
-        #     df = pd.read_sql(query, engine)
-        #     return df
-        # else:
-        #     df = pd.read_sql(query, engine, params=params)
-        #     return df
+        if params is None:
+            df = pd.read_sql(query, engine)
+            return df
+        else:
+            df = pd.read_sql(query, engine, params=params)
+            return df
 
     except SQLAlchemyError as e:
         error = str(e.__dict__['orig'])

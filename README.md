@@ -1,5 +1,11 @@
 # Data Validator
 
+
+## Windows
+- Download ODBC Driver 17 from this link
+- https://docs.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-ver15
+****
+
 ## MacOS
 ### SQL Server
 ```sh

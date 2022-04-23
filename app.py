@@ -59,7 +59,6 @@ if (
     print(
         "-> Please set the envioronment variables: SRC_HOST, SRC_USER, SRC_PWD, TGT_HOST, TGT_USER, TGT_PWD"
     )
-    # None
     sys.exit(1)
 
 src_config = {
@@ -79,18 +78,6 @@ tgt_config = {
     "user": tgt_user,
     "password": tgt_pwd,
 }
-
-# config = {
-#     "db_engine": 'SQL SERVER',
-#     "host": '',
-#     "port": 1433,
-#     "service": 'AdventureWorks',
-#     "user": '',
-#     "password": '',
-# }
-
-# sqlserver_table_to_df(config, "select @@SERVERNAME", None)
-# sys.exit(0)
 
 # ------------------------------------------------------------------------------#
 # Create following directories                                                  #

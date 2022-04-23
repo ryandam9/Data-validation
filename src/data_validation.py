@@ -7,6 +7,10 @@ import pandas as pd
 from databases.oracle import oracle_table_to_df
 from databases.oracle_queries import oracle_queries
 from databases.postgres import postgres_table_to_df
+from databases.sql_server import sqlserver_table_to_df
+from databases.sql_server_queries import sqlserver_queries
+
+
 from settings import (DATA_VALIDATION_REC_COUNT, DEBUG_DATA_VALIDATION,
                       PARALLEL_THREADS)
 from sql_formatter.core import format_sql
@@ -274,8 +278,8 @@ def data_validation_single_table(schema, table, primary_key, src_config, tgt_con
         query += f"a.{primary_key[i]} = temp.{primary_key[i]}"
 
     msg = (
-        f"{schema}~{table}~0~0~~Query generated to execute on Target DB. "
-        "{format_sql(query)}"
+        f"{schema}~{table}~0~0~~Query generated to execute on Target DB.\n"
+        f"{format_sql(query)}"
     )
     write_log_entry(summary_file, msg, False)
 
@@ -531,7 +535,7 @@ def generate_db_specific_inline_view(db_engine, tables):
         elif db_engine in POSTGRES:
             inline_view += f"SELECT '{table['schema']}' AS owner, '{table['table']}' AS table_name "
         elif db_engine in SQLSERVER:
-            inline_view += f"SELECT '{table['schema']}' AS owner, '{table['table']}' AS table_name "
+            inline_view += f"SELECT '{table['schema']}' AS schema_name, '{table['table']}' AS table_name "
 
     return inline_view
 
@@ -546,31 +550,43 @@ def fetch_primary_key_column_names(src_config, tables):
     :return: A Pandas DataFrame containing the primary key column names.
     """
     db_engine = src_config["db_engine"]
+    primary_keys_query = ''
 
     if db_engine in ORACLE:
         primary_keys_query = oracle_queries["get_primary_key"]
-        inline_view = generate_db_specific_inline_view(db_engine, tables)
-        query = primary_keys_query.replace("<temp_placeholder>", inline_view)
+    elif db_engine in SQLSERVER:
+        primary_keys_query = sqlserver_queries["get_primary_key"]
+    else:
+        print(f"{db_engine} IS NOT SUPPORTED AS SOURCE DB AT THE MOMENT")
+        sys.exit(1)
 
-        # Execute the query
-        try:
+    inline_view = generate_db_specific_inline_view(db_engine, tables)
+    query = primary_keys_query.replace("<temp_placeholder>", inline_view)
+
+    # Execute the query
+    try:
+        if db_engine in ORACLE:
             df = oracle_table_to_df(src_config, query, None)
-            return df
-        except SQLAlchemyError as e:
+        elif db_engine in SQLSERVER:
+            df = sqlserver_table_to_df(src_config, query, None)
+
+        return df
+    except SQLAlchemyError as e:
             error = str(e.__dict__["orig"])
             print(f"-> Unable to fetch primary key column names: {error}")
             print(
                 f"-> This is the query used to find primary key columns: \n{query}")
             sys.exit(1)
 
-    print(f"-> {db_engine} is currently not supported")
-    sys.exit(1)
-
 
 def read_data_from_source_db(src_config, schema, table):
-    """ """
+    """ 
+    Read Data from Source Database. It could be Oracle, SQL Server or Postgress
+    at the moment. 
+    """
     db_engine = src_config["db_engine"]
 
+    # Oracle
     if db_engine in ORACLE:
         try:
             query = f"SELECT * FROM {schema}.{table} WHERE ROWNUM < {DATA_VALIDATION_REC_COUNT}"
@@ -580,16 +596,44 @@ def read_data_from_source_db(src_config, schema, table):
         except SQLAlchemyError as e:
             raise e
 
+    # SQL Server
+    if db_engine in SQLSERVER:
+        try:
+            query = f"SELECT TOP {DATA_VALIDATION_REC_COUNT} * FROM {schema}.{table}"
+            source_df = sqlserver_table_to_df(src_config, query, None)
+
+            return source_df
+        except SQLAlchemyError as e:
+            raise e
+
+    # Postgres
+    if db_engine in POSTGRES:
+        try:
+            query = f"SELECT * FROM {schema}.{table} LIMIT {DATA_VALIDATION_REC_COUNT}"
+            source_df = postgres_table_to_df(src_config, query, None)
+
+            return source_df
+        except SQLAlchemyError as e:
+            raise e
+
+
 
 def read_data_from_target_db(tgt_config, query):
     """ """
     db_engine = tgt_config["db_engine"]
 
-    if db_engine in POSTGRES:
-        try:
+    try:
+        if db_engine in POSTGRES:
             target_df = postgres_table_to_df(tgt_config, query, None)
             return target_df
-        except SQLAlchemyError as e:
+        elif db_engine in SQLSERVER:
+            target_df = sqlserver_table_to_df(tgt_config, query, None)
+            return target_df
+        elif db_engine in ORACLE:
+            target_df = oracle_table_to_df(tgt_config, query, None)
+            return target_df
+
+    except SQLAlchemyError as e:
             raise e
 
 
