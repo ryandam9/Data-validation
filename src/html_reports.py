@@ -1,4 +1,5 @@
 import os
+from cgitb import html
 
 from .utils import get_current_time, get_project_root
 
@@ -15,9 +16,10 @@ def generate_table_metadata_compare_report(df, src_db_config, tgt_db_config):
     html_template = ""
 
     root_dir = get_project_root()
+    template_path = os.path.join(root_dir, "src", "html", "layout_1.html")
 
     # Read HTML template as a string
-    with open(f"{root_dir}/src/html/layout_1.html") as template:
+    with open(template_path) as template:
         html_template = template.read()
 
     # Replace the table data in the HTML template.
@@ -41,7 +43,8 @@ def generate_table_metadata_compare_report(df, src_db_config, tgt_db_config):
     current_time = get_current_time()
 
     # Write the HTML report to a file.
-    html_report = f"{root_dir}/table_structure_validation/table_metadata_compare_report_{current_time}.html"
+    html_report = os.path.join(root_dir, 'table_structure_validation',
+                               f'table_metadata_compare_report_{current_time}.html')
 
     with open(html_report, "w") as report:
         report.write(html_template)
@@ -116,8 +119,9 @@ def generate_data_validation_report(summary_rows, col_differences, counts):
     # Read HTML template for this report. Replace the placeholders with data.
     # ----------------------------------------------------------------------------------------------#
     html_template = ""
+    template_path = os.path.join(root_dir, "src", "html", "layout_2.html")
 
-    with open(f"{root_dir}/src/html/layout_2.html") as template:
+    with open(template_path) as template:
         html_template = template.read()
 
     # Replace the table data in the HTML template.
@@ -152,7 +156,8 @@ def generate_data_validation_report(summary_rows, col_differences, counts):
     current_time = get_current_time()
 
     # Write the HTML report to a file.
-    html_report = f"{root_dir}/data_validation_reports/data_validation_report_{current_time}.html"
+    html_report = os.path.join(
+        root_dir, 'data_validation_reports', f'data_validation_report_{current_time}.html')
 
     with open(html_report, "w") as report:
         report.write(html_template)
