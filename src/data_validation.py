@@ -9,6 +9,7 @@ from databases.oracle_queries import oracle_queries
 from databases.postgres import postgres_table_to_df
 from databases.sql_server import sqlserver_table_to_df
 from databases.sql_server_queries import sqlserver_queries
+import datetime
 
 
 from settings import DATA_VALIDATION_REC_COUNT, DEBUG_DATA_VALIDATION, PARALLEL_THREADS
@@ -229,7 +230,15 @@ def data_validation_single_table(schema, table, primary_key, src_config, tgt_con
     # ----------------------------------------------------------------------------------------------#
     try:
         primary_key = [x.lower() for x in primary_key]
+
+        # Converting the column names to lower case.
+        columns = source_df.columns
+        new_columns = []
+        [new_columns.append(col.lower()) for col in columns]
+        source_df.columns = new_columns
+
         pk_values = source_df[primary_key].values.tolist()
+    
         msg = f"{schema}~{table}~0~0~~Primary Key data has been captured from Source table DataFrame"
         write_log_entry(summary_file, msg, False)
     except Exception as err:
@@ -260,6 +269,9 @@ def data_validation_single_table(schema, table, primary_key, src_config, tgt_con
 
             if type(v) == str:
                 q += f"'{v}' AS {k}"
+
+            elif isinstance(v, datetime.date):
+                q += f"TO_DATE('{v}', 'YYYY-MM-DD') AS {k}"
             else:
                 q += f"{v} AS {k}"
 
@@ -312,7 +324,7 @@ def data_validation_single_table(schema, table, primary_key, src_config, tgt_con
     try:
         columns = target_df.columns
         new_columns = []
-        [new_columns.append("tgt_" + col) for col in columns]
+        [new_columns.append("tgt_" + col.lower()) for col in columns]
         target_df.columns = new_columns
 
         # Now, Combine the Source & Target Dataframes.

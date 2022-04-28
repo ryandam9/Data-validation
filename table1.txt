@@ -1,0 +1,6 @@
+humanresources,department
+humanresources,employee
+humanresources,employeedepartmenthistory
+humanresources,employeepayhistory
+humanresources,jobcandidate
+humanresources,shift
