@@ -55,7 +55,8 @@ oracle_queries[
     "get_primary_key"
 ] = """
 WITH temp AS (
-    <temp_placeholder>
+    SELECT 'OT' AS owner, 'REGIONS' AS table_name UNION
+    SELECT 'OT' AS owner, 'person' as table_name
 )
 SELECT 
      cols.owner
